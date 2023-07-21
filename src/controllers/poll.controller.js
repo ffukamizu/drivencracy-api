@@ -84,10 +84,8 @@ export async function getResults(req, res) {
         const choice = await db.collection('choice').findOne({ _id: largestChoiceId });
 
         poll.result = {
-            result: {
                 title: choice.title,
                 votes: largestOccurrences,
-            }
         }
 
         res.send(poll);
