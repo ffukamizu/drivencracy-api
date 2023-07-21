@@ -7,7 +7,7 @@ export async function postChoice(req, res) {
 
     try {
         const poll = await db.collection('poll').findOne({ _id: pollId });
-        if (!poll) return res.status(404);
+        if (!poll) return res.status(404).send('Poll not found');
 
         const expireAtTimestamp = dayjs(poll.expireAt, 'YYYY-MM-DD HH:mm').unix();
         const currentTimestamp = dayjs().unix();
@@ -15,7 +15,7 @@ export async function postChoice(req, res) {
         if (expireAtTimestamp < currentTimestamp) return res.status(403);
 
         const titleExists = await db.collection('poll').findOne({ title: title });
-        if (titleExists) return res.status(409);
+        if (titleExists) return res.status(409).send('Choice already exists');
 
         await db.collection('choice').insertOne({
             _id: new ObjectId(),
@@ -32,14 +32,14 @@ export async function postVote(req, res) {
 
     try {
         const choice = await db.collection('choice').findOne({ _id: new ObjectId(id) }); //might be incorrect id (use title)
-        if (!choice) return res.status(404);
+        if (!choice) return res.status(404).send('Choice not found');
 
         const poll = await db.collection('poll').findOne({ _id: choice.pollId });
         
         const expireAtTimestamp = dayjs(poll.expireAt, 'YYYY-MM-DD HH:mm').unix();
         const currentTimestamp = dayjs().unix();
 
-        if (expireAtTimestamp < currentTimestamp) return res.status(403);
+        if (expireAtTimestamp < currentTimestamp) return res.status(403).send('Poll expired');
 
         const vote = await db.collection('vote').insertOne({
             pollId: poll._id,

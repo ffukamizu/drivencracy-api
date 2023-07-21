@@ -18,7 +18,6 @@ export async function postPoll(req, res) {
             expireAt: expireAt ?? newExpireAt,
         });
 
-        res.status(201);
     } catch (err) {
         res.status(500).send(err.message);
     }
@@ -55,7 +54,7 @@ export async function getResults(req, res) {
     try {
         const poll = await db.collection('poll').findOne({ _id: new ObjectId(id) });
 
-        if (!poll) return res.status(404);
+        if (!poll) return res.status(404).send('Poll not found');
 
         const votes = await db.collection('vote').find({ pollId: id }).toArray();
 
