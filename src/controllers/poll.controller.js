@@ -5,15 +5,17 @@ import dayjs from 'dayjs';
 export async function postPoll(req, res) {
     const { title, expireAt } = req.body;
 
-    let newExpireAt
+    let newExpireAt;
 
-    if (!expireAt) {newExpireAt = dayjs().add(30, 'day').format('YYYY-MM-DD HH:mm')};
+    if (!expireAt) {
+        newExpireAt = dayjs().add(30, 'day').format('YYYY-MM-DD HH:mm');
+    }
 
     try {
         const poll = await db.collection('poll').insertOne({
             _id: new ObjectId(),
             title: title,
-            expireAt: expireAt ?? newExpireAt
+            expireAt: expireAt ?? newExpireAt,
         });
 
         res.status(201);
@@ -27,6 +29,18 @@ export async function getPoll(req, res) {
         const poll = await db.collection('poll').find().toArray();
 
         res.send(poll);
+    } catch (err) {
+        res.status(500).send(err.message);
+    }
+}
+
+export async function getChoicesList(req, res) {
+    const { id } = req.params;
+
+    try {
+        const choices = await db.collection('choice').find({ pollId: id }).toArray();
+
+        res.send(choices);
     } catch (err) {
         res.status(500).send(err.message);
     }
