@@ -45,3 +45,51 @@ export async function getChoicesList(req, res) {
         res.status(500).send(err.message);
     }
 }
+
+export async function getResults(req, res) {
+    const { id } = req.params;
+
+    try {
+        const poll = await db.collection('poll').findOne({ _id: id });
+
+        if (!poll) return res.status(404);
+
+        const votes = await db.collection('vote').find({ pollId: id }).toArray();
+
+        const choiceGroup = votes.reduce((groups, item) => {
+            const { choiceId } = item;
+
+            if (!groups[choiceId]) {
+                groups[choiceId] = [];
+            }
+
+            groups[choiceId].push(item);
+
+            return groups;
+        }, {});
+
+        let largestOccurrences = 0;
+        let largestChoiceId = null;
+
+        for (const choiceId in choiceGroup) {
+            const occurrences = choiceGroup[choiceId].length;
+            if (occurrences > largestOccurrences) {
+                largestOccurrences = occurrences;
+                largestChoiceId = choiceId;
+            }
+        }
+
+        const choice = await db.collection('choice').findOne({ _id: largestChoiceId });
+
+        poll.result = {
+            result: {
+                title: choice.title,
+                votes: largestOccurrences,
+            }
+        }
+
+        res.send(poll);
+    } catch (err) {
+        res.status(500).send(err.message);
+    }
+}
