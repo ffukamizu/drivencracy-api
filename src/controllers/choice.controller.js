@@ -31,7 +31,7 @@ export async function postVote(req, res) {
     const { id } = req.params;
 
     try {
-        const choice = await db.collection('choice').findOne({ _id: id }); //might be incorrect id (use title)
+        const choice = await db.collection('choice').findOne({ _id: new ObjectId(id) }); //might be incorrect id (use title)
         if (!choice) return res.status(404);
 
         const poll = await db.collection('poll').findOne({ _id: choice.pollId });

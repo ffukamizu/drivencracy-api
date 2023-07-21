@@ -38,7 +38,10 @@ export async function getChoicesList(req, res) {
     const { id } = req.params;
 
     try {
-        const choices = await db.collection('choice').find({ pollId: id }).toArray();
+        const choices = await db
+            .collection('choice')
+            .find({ pollId: new ObjectId(id) })
+            .toArray();
 
         res.send(choices);
     } catch (err) {
@@ -50,7 +53,7 @@ export async function getResults(req, res) {
     const { id } = req.params;
 
     try {
-        const poll = await db.collection('poll').findOne({ _id: id });
+        const poll = await db.collection('poll').findOne({ _id: new ObjectId(id) });
 
         if (!poll) return res.status(404);
 
