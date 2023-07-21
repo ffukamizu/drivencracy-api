@@ -1,9 +1,10 @@
 import { Router } from 'express';
-import schemaChoice from '../schemas/choice.schema';
+import schemaChoice from '../schemas/choice.schema.js';
+import validateSchema from '../middlewares/validateSchema.middleware.js';
 
 const choiceRouter = Router();
 
-choiceRouter.post('/poll', validateSchema(schemaChoice), postPoll);
-choiceRouter.get('/poll', validateSchema(schemaChoice), getPoll);
+choiceRouter.post('/choice', validateSchema(schemaChoice), postChoice);
+choiceRouter.get('/choice', validateSchema(schemaChoice), getChoice);
 
 export default choiceRouter;
